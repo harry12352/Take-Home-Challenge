@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: mypaswword
+      DATABASE: email_core_engine
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DIALECT: mysql
+      APP_PORT: 3000
+      ELASTICSEARCH_HOST: http://elasticsearch:9200
+      OUTLOOK_CLIENT_ID: your_outlook_client_id
+      OUTLOOK_CLIENT_SECRET: your_outlook_client_secret
+      REDIRECT_URI: http://localhost:3000/auth/outlook/callback
+      SESSION_SECRET: your_session_secret
+    depends_on:
+      - db
+      - elasticsearch
+    command: ["node", "server.js"]
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: email_core_engine
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+
+volumes:
+  db_data:
